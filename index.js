@@ -12,9 +12,13 @@ function load_images() {
 function init() {
     canvas = document.getElementById("canvas");
 
+    // setting score
+    score = 0
+
     // Changing the width and height of canvas using JS
     W = 700
     H = 500
+    gameOver = false
 
     canvas.width = W
     canvas.height = H
@@ -84,14 +88,35 @@ function draw() {
     for (let i = 0; i < enemies.length; i++) {
         pen.drawImage(virus_image, enemies[i].x, enemies[i].y, enemies[i].w, enemies[i].h)
     }
+
+    // Draw Score
+    pen.fillStyle = "white"
+    pen.fillText("Score " + score, 10, 10)
 }
 
 function update() {
 
     if (player.moving) {
         player.x += player.speed
+        score += 20
+    }
+    // Loop to check collision btw corona and player
+    for (let i = 0; i < enemies.length; i++) {
+        if (isCollision(enemies[i], player)) {
+            score -= 50
+            if (score <= 0) {
+                gameOver = true
+                alert("Game Over")
+            }
+        }
     }
 
+    // collision gem and player
+    if (isCollision(gem, player)) {
+        gameOver = true
+        draw()
+        alert("Your score " + score)
+    }
     for (let i = 0; i < enemies.length; i++) {
         enemies[i].y += enemies[i].speed
         if (enemies[i].y > H - enemies[i].h || enemies[i].y < 0) {
@@ -101,7 +126,15 @@ function update() {
 
 }
 
+function isCollision(b1, b2) {
+    //condition
+    return Math.abs(b1.x - b2.x) <= b1.h - 30 && Math.abs(b1.y - b2.y) <= b1.y - 30
+}
+
 function gameLoop() {
+    if (gameOver) {
+        clearInterval(loop)
+    }
     draw()
     update()
 }
@@ -110,4 +143,4 @@ load_images()
 
 init()
 
-setInterval(gameLoop, 100)
+var loop = setInterval(gameLoop, 100)
